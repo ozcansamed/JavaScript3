@@ -1,3 +1,56 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto;
+}
+
 .alert-error {
-  color: red;
+  color: white;
+  background-color: rgb(203, 137, 137);
+  padding: 5px;
+  margin: 5px 0;
+}
+
+.repositories {
+  list-style-type: none;
+  padding: 0;
+}
+
+.repository {
+  margin: 5px 0;
+  border: 1px solid silver;
+  box-shadow: 2px 2px 5px lightgray;
+}
+
+header {
+  background-color: blue;
+  color: white;
+  padding: 20px;
+}
+
+th,
+td {
+  padding: 5px 10px;
+}
+
+@media screen and (min-width: 1200px) {
+  body {
+    padding: 20px 10%;
+  }
+}
+
+@media screen and (min-width: 600px) and (max-width: 1200px) {
+  body {
+    padding: 5px 5%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    padding: 0;
+  }
 }
