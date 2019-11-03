@@ -39,9 +39,15 @@
     createAndAppend('th', tr, {
       text: 'Repository:',
     });
-    createAndAppend('td', tr, {
+    const td = createAndAppend('td', tr);
+    createAndAppend('a', td, {
       text: repo.name,
+      href: repo.html_url,
     });
+
+    // createAndAppend('td', tr, {
+    //  text: repo.name,
+    // });
 
     const tr2 = createAndAppend('tr', table);
     createAndAppend('th', tr2, {
