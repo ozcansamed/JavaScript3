@@ -35,30 +35,37 @@
     });
     const table = createAndAppend('table', li);
 
-    const headers = ['Repository:', 'Description:', 'Forks:', 'Updated:'];
-    const details = ['name', 'description', 'forks', 'updated_at'];
+    const tr = createAndAppend('tr', table);
+    createAndAppend('th', tr, {
+      text: 'Repository:',
+    });
+    createAndAppend('td', tr, {
+      text: repo.name,
+    });
 
-    for (let i = 0; i < headers.length; ++i) {
-      const tr = createAndAppend('tr', table);
-      createAndAppend('th', tr, {
-        text: headers[i],
-      });
-      if (details[i] === 'name') {
-        const td = createAndAppend('td', tr);
-        createAndAppend('a', td, {
-          href: repo.html_url,
-          text: repo.name,
-        });
-      } else if (details[i] === 'updated_at') {
-        createAndAppend('td', tr, {
-          text: new Date(repo.updated_at).toLocaleString(),
-        });
-      } else {
-        createAndAppend('td', tr, {
-          text: repo[details[i]],
-        });
-      }
-    }
+    const tr2 = createAndAppend('tr', table);
+    createAndAppend('th', tr2, {
+      text: 'Description:',
+    });
+    createAndAppend('td', tr2, {
+      text: repo.description,
+    });
+
+    const tr3 = createAndAppend('tr', table);
+    createAndAppend('th', tr3, {
+      text: 'Forks:',
+    });
+    createAndAppend('td', tr3, {
+      text: repo.forks,
+    });
+
+    const tr4 = createAndAppend('tr', table);
+    createAndAppend('th', tr4, {
+      text: 'Updated:',
+    });
+    createAndAppend('td', tr4, {
+      text: repo.updated_at,
+    });
   }
 
   function main(url) {

@@ -6,6 +6,7 @@
 
 body {
   font-family: Roboto;
+
 }
 
 .alert-error {
@@ -24,6 +25,7 @@ body {
   margin: 5px 0;
   border: 1px solid silver;
   box-shadow: 2px 2px 5px lightgray;
+
 }
 
 header {
@@ -35,6 +37,7 @@ header {
 th,
 td {
   padding: 5px 10px;
+  overflow-wrap: break-word;
 }
 
 @media screen and (min-width: 1200px) {
