@@ -1,19 +1,21 @@
 'use strict';
 
 {
-  function fetchJSON(url, cb) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.responseType = 'json';
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status <= 299) {
-        cb(null, xhr.response);
-      } else {
-        cb(new Error(`Network error: ${xhr.status} - ${xhr.statusText}`));
-      }
-    };
-    xhr.onerror = () => cb(new Error('Network request failed'));
-    xhr.send();
+  function fetchJSON(url) {
+    return fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(
+            'Failed to load request:',
+            response.status,
+            response.statusText,
+          );
+        }
+        return response.clone().json();
+      })
+      .catch(err => {
+        throw err;
+      });
   }
 
   function createAndAppend(name, parent, options = {}) {
@@ -29,71 +31,136 @@
     return elem;
   }
 
-  function renderRepoDetails(repo, ul) {
-    const li = createAndAppend('li', ul, {
-      class: 'repository',
-    });
-    const table = createAndAppend('table', li);
+  function fillContributorsDetails(currentRepo, contributorsSection) {
+    fetchJSON(currentRepo.contributors_url)
+      .then(contributors => {
+        createAndAppend('h4', contributorsSection, {
+          text: 'Contributions',
+        });
+        const ul = createAndAppend('ul', contributorsSection);
 
-    const tr = createAndAppend('tr', table);
+        contributors
+          .sort((contributor1, contributor2) =>
+            contributor1.login.localeCompare(contributor2.login),
+          )
+          .forEach(contributor => {
+            const li = createAndAppend('li', ul);
+            createAndAppend('img', li, {
+              src: contributor.avatar_url,
+              class: 'contributor-avatar',
+            });
+            const nameSpan = createAndAppend('span', li, {
+              class: 'contributor-name',
+            });
+            createAndAppend('a', nameSpan, {
+              text: contributor.login,
+              href: contributor.html_url,
+            });
+            createAndAppend('span', li, {
+              text: contributor.contributions,
+              class: 'contributor-contributions',
+            });
+          });
+      })
+      .catch(err => console.log(err));
+  }
+
+  function fillRepoDetails(currentRepo, repoSection) {
+    const table = createAndAppend('table', repoSection);
+
+    let tr = createAndAppend('tr', table);
     createAndAppend('th', tr, {
       text: 'Repository:',
     });
     const td = createAndAppend('td', tr);
     createAndAppend('a', td, {
-      text: repo.name,
-      href: repo.html_url,
+      text: currentRepo.name,
+      href: currentRepo.html_url,
     });
 
-    // createAndAppend('td', tr, {
-    //  text: repo.name,
-    // });
-
-    const tr2 = createAndAppend('tr', table);
-    createAndAppend('th', tr2, {
+    tr = createAndAppend('tr', table);
+    createAndAppend('th', tr, {
       text: 'Description:',
     });
-    createAndAppend('td', tr2, {
-      text: repo.description,
+    createAndAppend('td', tr, {
+      text: currentRepo.description,
     });
 
-    const tr3 = createAndAppend('tr', table);
-    createAndAppend('th', tr3, {
+    tr = createAndAppend('tr', table);
+    createAndAppend('th', tr, {
       text: 'Forks:',
     });
-    createAndAppend('td', tr3, {
-      text: repo.forks,
+    createAndAppend('td', tr, {
+      text: currentRepo.forks,
     });
 
-    const tr4 = createAndAppend('tr', table);
-    createAndAppend('th', tr4, {
+    tr = createAndAppend('tr', table);
+    createAndAppend('th', tr, {
       text: 'Updated:',
     });
-    createAndAppend('td', tr4, {
-      text: repo.updated_at,
+    createAndAppend('td', tr, {
+      text: currentRepo.updated_at,
     });
   }
 
+  function loadRepo(repoSection, contributorsSection, currentRepo) {
+    repoSection.innerHTML = '';
+    contributorsSection.innerHTML = '';
+
+    // fill contributor section
+    fillContributorsDetails(currentRepo, contributorsSection);
+
+    // fill repo section
+    fillRepoDetails(currentRepo, repoSection);
+  }
+
   function main(url) {
-    const root = document.getElementById('root');
-    createAndAppend('header', root, {
-      text: 'HYF Repositories',
-    });
-    fetchJSON(url, (err, repos) => {
-      if (err) {
+    fetchJSON(url)
+      .then(repos => {
+        const root = document.getElementById('root');
+        const header = createAndAppend('header', root, {
+          text: 'HYF Repositories',
+        });
+        const select = createAndAppend('select', header);
+
+        const mainElm = createAndAppend('main', root, {
+          class: 'main-container',
+        });
+        const repoSection = createAndAppend('section', mainElm, {
+          class: 'repo-container',
+        });
+
+        const contributorsSection = createAndAppend('section', mainElm, {
+          class: 'contributors-container',
+        });
+
+        repos
+          .sort((repo1, repo2) => repo1.name.localeCompare(repo2.name))
+          .forEach(repo =>
+            createAndAppend('option', select, {
+              text: repo.name,
+            }),
+          );
+
+        // fetch and fill the current selected repo
+        select.addEventListener('change', () => {
+          loadRepo(
+            repoSection,
+            contributorsSection,
+            repos[select.selectedIndex],
+          );
+        });
+
+        // fetch and fill the first repo when data arrived
+        loadRepo(repoSection, contributorsSection, repos[select.selectedIndex]);
+      })
+      .catch(err => {
+        const root = document.getElementById('root');
         createAndAppend('div', root, {
           text: err.message,
           class: 'alert-error',
         });
-        return;
-      }
-      const ul = createAndAppend('ul', root, {
-        class: 'repositories',
       });
-      repos
-        .sort((repo1, repo2) => repo1.name.localeCompare(repo2.name))
-        .forEach(repo => renderRepoDetails(repo, ul));
-    });
   }
 
   const HYF_REPOS_URL =
