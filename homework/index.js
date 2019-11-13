@@ -1,22 +1,7 @@
 'use strict';
 
 {
-  function fetchJSON(url) {
-    return fetch(url)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(
-            'Failed to load request:',
-            response.status,
-            response.statusText,
-          );
-        }
-        return response.clone().json();
-      })
-      .catch(err => {
-        throw err;
-      });
-  }
+  const root = document.getElementById('root');
 
   function createAndAppend(name, parent, options = {}) {
     const elem = document.createElement(name);
@@ -31,38 +16,47 @@
     return elem;
   }
 
-  function fillContributorsDetails(currentRepo, contributorsSection) {
-    fetchJSON(currentRepo.contributors_url)
-      .then(contributors => {
-        createAndAppend('h4', contributorsSection, {
-          text: 'Contributions',
-        });
-        const ul = createAndAppend('ul', contributorsSection);
+  async function fetchJSON(url) {
+    const response = await axios.get(url);
+    return response.data;
+  }
 
-        contributors
-          .sort((contributor1, contributor2) =>
-            contributor1.login.localeCompare(contributor2.login),
-          )
-          .forEach(contributor => {
-            const li = createAndAppend('li', ul);
-            createAndAppend('img', li, {
-              src: contributor.avatar_url,
-              class: 'contributor-avatar',
-            });
-            const nameSpan = createAndAppend('span', li, {
-              class: 'contributor-name',
-            });
-            createAndAppend('a', nameSpan, {
-              text: contributor.login,
-              href: contributor.html_url,
-            });
-            createAndAppend('span', li, {
-              text: contributor.contributions,
-              class: 'contributor-contributions',
-            });
+  async function fillContributorsDetails(currentRepo, contributorsSection) {
+    try {
+      const contributors = await fetchJSON(currentRepo.contributors_url);
+      createAndAppend('h4', contributorsSection, {
+        text: 'Contributions',
+      });
+      const ul = createAndAppend('ul', contributorsSection);
+
+      contributors
+        .sort((contributor1, contributor2) =>
+          contributor1.login.localeCompare(contributor2.login),
+        )
+        .forEach(contributor => {
+          const li = createAndAppend('li', ul);
+          createAndAppend('img', li, {
+            src: contributor.avatar_url,
+            class: 'contributor-avatar',
           });
-      })
-      .catch(err => console.log(err));
+          const nameSpan = createAndAppend('span', li, {
+            class: 'contributor-name',
+          });
+          createAndAppend('a', nameSpan, {
+            text: contributor.login,
+            href: contributor.html_url,
+          });
+          createAndAppend('span', li, {
+            text: contributor.contributions,
+            class: 'contributor-contributions',
+          });
+        });
+    } catch (err) {
+      createAndAppend('div', root, {
+        text: err.message,
+        class: 'alert-error',
+      });
+    }
   }
 
   function fillRepoDetails(currentRepo, repoSection) {
@@ -114,53 +108,47 @@
     fillRepoDetails(currentRepo, repoSection);
   }
 
-  function main(url) {
-    fetchJSON(url)
-      .then(repos => {
-        const root = document.getElementById('root');
-        const header = createAndAppend('header', root, {
-          text: 'HYF Repositories',
-        });
-        const select = createAndAppend('select', header);
+  async function main(url) {
+    const header = createAndAppend('header', root, {
+      text: 'HYF Repositories',
+    });
+    const select = createAndAppend('select', header);
 
-        const mainElm = createAndAppend('main', root, {
-          class: 'main-container',
-        });
-        const repoSection = createAndAppend('section', mainElm, {
-          class: 'repo-container',
-        });
+    const mainElm = createAndAppend('main', root, {
+      class: 'main-container',
+    });
+    const repoSection = createAndAppend('section', mainElm, {
+      class: 'repo-container',
+    });
 
-        const contributorsSection = createAndAppend('section', mainElm, {
-          class: 'contributors-container',
-        });
+    const contributorsSection = createAndAppend('section', mainElm, {
+      class: 'contributors-container',
+    });
 
-        repos
-          .sort((repo1, repo2) => repo1.name.localeCompare(repo2.name))
-          .forEach(repo =>
-            createAndAppend('option', select, {
-              text: repo.name,
-            }),
-          );
+    try {
+      const repos = await fetchJSON(url);
 
-        // fetch and fill the current selected repo
-        select.addEventListener('change', () => {
-          loadRepo(
-            repoSection,
-            contributorsSection,
-            repos[select.selectedIndex],
-          );
-        });
+      repos
+        .sort((repo1, repo2) => repo1.name.localeCompare(repo2.name))
+        .forEach(repo =>
+          createAndAppend('option', select, {
+            text: repo.name,
+          }),
+        );
 
-        // fetch and fill the first repo when data arrived
+      // fetch and fill the current selected repo
+      select.addEventListener('change', () => {
         loadRepo(repoSection, contributorsSection, repos[select.selectedIndex]);
-      })
-      .catch(err => {
-        const root = document.getElementById('root');
-        createAndAppend('div', root, {
-          text: err.message,
-          class: 'alert-error',
-        });
       });
+
+      // fetch and fill the first repo when data arrived
+      loadRepo(repoSection, contributorsSection, repos[select.selectedIndex]);
+    } catch (err) {
+      createAndAppend('div', root, {
+        text: err.message,
+        class: 'alert-error',
+      });
+    }
   }
 
   const HYF_REPOS_URL =

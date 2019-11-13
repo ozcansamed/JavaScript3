@@ -1,3 +1,155 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto;
+  background-color: #f0efef;
+  word-break: break-all;
+}
+
+header {
+  background-color: blue;
+  color: white;
+  padding: 20px;
+  font-weight: bold;
+}
+
+select {
+  margin-left: 20px;
+  padding: 10px;
+  height: 50px;
+  font-size: 18px;
+}
+
+.main-container {
+  margin: 10px 0;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.repo-container {
+  width: 50%;
+  align-items: flex-start;
+  margin: 10px;
+  padding: 10px;
+}
+
+table {
+  background-color: white;
+  box-shadow: 2px 2px 6px #e0e0e0;
+  display: block;
+}
+
+th,
+td {
+  padding: 5px 10px;
+  overflow-wrap: break-word;
+}
+
+th {
+  min-width: 150px;
+}
+
+.contributors-container {
+  width: 50%;
+  border: 1px solid #7c7b7b;
+  background-color: white;
+  margin: 10px;
+  padding: 10px;
+}
+
+.contributors-container ul {
+  list-style-type: none;
+}
+
+h4 {
+  background-color: white;
+}
+
+.contributors-container li {
+  display: flex;
+  background-color: white;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 2px 2px 6px #e0e0e0;
+  margin: 10px;
+}
+
+.contributor-avatar {
+  flex: 0 0 50px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+.contributor-name {
+  flex: 1;
+  align-self: center;
+  margin: 0 10px;
+  padding: 20px;
+}
+
+.contributor-contributions {
+
+  align-self: center;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: grey;
+}
+
 .alert-error {
-  color: red;
+  color: white;
+  background-color: rgb(203, 137, 137);
+  padding: 5px;
+  margin: 5px 0;
+}
+
+@media screen and (min-width: 1080px) {
+  body {
+    padding: 20px 10%;
+  }
+}
+
+@media screen and (min-width: 720px) and (max-width: 1080px) {
+  body {
+    padding: 5px 5%;
+  }
+
+  .main-container {
+    flex-direction: column;
+  }
+
+  .contributors-container {
+    width: 100%;
+  }
+
+  .repo-container {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  body {
+    padding: 0;
+  }
+
+  header {
+    display: block;
+  }
+
+  .main-container {
+    flex-direction: column;
+  }
+
+  .contributors-container {
+    width: 100%;
+  }
+
+  .repo-container {
+    width: 100%;
+  }
 }
